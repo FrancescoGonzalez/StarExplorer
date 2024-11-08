@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'dart:math';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'calculator.dart';
 import 'location.dart';
 import 'rest.dart';
-import 'package:star_explorer/model/space_object_data.dart';
+import '/model/space_object_data.dart';
 
 void main() => runApp(MyApp());
 
@@ -34,21 +33,25 @@ class StargazingApp extends StatefulWidget {
 }
 
 class _StargazingAppState extends State<StargazingApp> {
-  double _roll = 0.0;    // Roll (rotation around z-axis)
-  double _azimuth = 0.0; // Azimuth (angle between phone's direction and magnetic north)
+  double _roll = 0.0;
+  double _azimuth = 0.0;
   double lat = 0.0;
   double lon = 0.0;
   double ra = 0.0;
   double dec = 0.0;
 
+  Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
+
   List<double> _accelerometerValues = [0.0, 0.0, 0.0];
+  final TextEditingController textController = TextEditingController();
+  String objectName = "M 31";
 
   @override
   void initState() {
     super.initState();
 
     updatePosition();
-    updateSpaceObjectCoordinates('M31');
+    updateSpaceObjectCoordinates('M31'); //base value
 
     // Listen to accelerometer events for roll calculation
     accelerometerEvents.listen((AccelerometerEvent event) {
@@ -59,7 +62,7 @@ class _StargazingAppState extends State<StargazingApp> {
     // Listen to compass events for azimuth calculation
     FlutterCompass.events?.listen((CompassEvent event) {
       setState(() {
-        _azimuth = event.heading ?? 0; // Heading might be null
+        _azimuth = event.heading ?? 0;
       });
     });
   }
@@ -68,19 +71,6 @@ class _StargazingAppState extends State<StargazingApp> {
     setState(() {
       _roll = calculateOrientation(_accelerometerValues);
     });
-  }
-
-  void _calculateOrientation() {
-    List<double> acc = _accelerometerValues;
-
-    // Normalize accelerometer values
-    double normAcc = sqrt(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2]);
-    acc[0] = acc[0] / normAcc;
-    acc[1] = acc[1] / normAcc;
-    acc[2] = acc[2] / normAcc;
-
-    // Calculate roll (rotation around y-axis)
-    _roll = atan2(acc[1], acc[2]) * (180 / pi) - 90; // "- 90" to make 0° when phone is vertical
   }
 
   void updatePosition() async {
@@ -92,7 +82,7 @@ class _StargazingAppState extends State<StargazingApp> {
       });
     } catch (e) {
       print('Error getting position: $e');
-    } 
+    }
   }
 
   void updateSpaceObjectCoordinates(String name) async {
@@ -109,28 +99,54 @@ class _StargazingAppState extends State<StargazingApp> {
 
   @override
   Widget build(BuildContext context) {
-
-    List<double> altAzM31 = convertRaDecToAltAz(
-    ra,
-    dec,
-    lat, 
-    lon,
-    DateTime.now().toUtc()
-    );
+    List<double> altAz =
+        convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Phone Orientation'),
+        title: const Text('Star Explorer'),
+        titleTextStyle: TextStyle(
+            color: const Color.fromARGB(225, 22, 106, 151),
+            fontSize: 24,
+            fontWeight: FontWeight.bold),
+        backgroundColor: nightSkyColor,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Az M31: ${degreesToString(altAzM31[1])}'),
-            Text('Alt M31: ${degreesToString(altAzM31[0])}'),
-            Text('Azimuth: ${degreesToString(_azimuth)}'),
-            Text('Altitude: ${degreesToString(_roll)}'),
+            Text('Az $objectName: ${degreesToString(altAz[1])}'),
+            Text('Alt $objectName: ${degreesToString(altAz[0])}'),
+            Text('Az phone: ${degreesToString(_azimuth)}'),
+            Text('Alt phone: ${degreesToString(_roll)}'),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: nightSkyColor,
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: 200,
+            height: 130,
+            child: Column(
+              children: [
+                TextField(
+                  controller: textController,
+                  decoration: InputDecoration(
+                      labelText: "Insert DSO",
+                      labelStyle: TextStyle(color: const Color.fromARGB(255, 223, 222, 255))),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      updateSpaceObjectCoordinates(textController.text);
+                      objectName = textController.text;
+                    },
+                    child: Text("Send",)),
+              ],
+            ),
+          ),
         ),
       ),
     );
