@@ -21,19 +21,19 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
       ),
       debugShowCheckedModeBanner: false,
-      home: StargazingApp(),
+      home: StarExplorerApp(),
     );
   }
 }
 
-class StargazingApp extends StatefulWidget {
-  const StargazingApp({super.key});
+class StarExplorerApp extends StatefulWidget {
+  const StarExplorerApp({super.key});
 
   @override
-  _StargazingAppState createState() => _StargazingAppState();
+  StarExplorerAppState createState() => StarExplorerAppState();
 }
 
-class _StargazingAppState extends State<StargazingApp> {
+class StarExplorerAppState extends State<StarExplorerApp> {
   double _roll = 0.0;
   double _azimuth = 0.0;
   double lat = 0.0;
@@ -45,7 +45,7 @@ class _StargazingAppState extends State<StargazingApp> {
 
   List<double> _accelerometerValues = [0.0, 0.0, 0.0];
   final TextEditingController textController = TextEditingController();
-  String objectName = "M 31";
+  String objectName = "LOADING";
 
   @override
   void initState() {
@@ -96,22 +96,22 @@ class _StargazingAppState extends State<StargazingApp> {
       });
     } catch (e) {
       showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text('Error'),
-          content: Text('$e'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: Text('Error'),
+            content: Text('$e'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -129,40 +129,62 @@ class _StargazingAppState extends State<StargazingApp> {
             fontWeight: FontWeight.bold),
         backgroundColor: nightSkyColor,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Az $objectName: ${degreesToString(altAz[1])}'),
-            Text('Alt $objectName: ${degreesToString(altAz[0])}'),
-            Text('Az phone: ${degreesToString(_azimuth)}'),
-            Text('Alt phone: ${degreesToString(_roll)}'),
-          ],
-        ),
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Az $objectName: ${degreesToString(altAz[1])}'),
+                Text('Alt $objectName: ${degreesToString(altAz[0])}'),
+              ],
+            ),
+          ),
+          Container(
+            color: nightSkyColor,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: textController,
+                        decoration: InputDecoration(
+                          labelText: "Insert DSO",
+                          labelStyle: TextStyle(
+                              color: const Color.fromARGB(255, 223, 222, 255)),
+                        ),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        updateSpaceObjectCoordinates(textController.text);
+                      },
+                      child: Text("Send"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: Container(
         color: nightSkyColor,
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: 200,
-            height: 130,
-            child: Column(
-              children: [
-                TextField(
-                  controller: textController,
-                  decoration: InputDecoration(
-                      labelText: "Insert DSO",
-                      labelStyle: TextStyle(color: const Color.fromARGB(255, 223, 222, 255))),
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                        updateSpaceObjectCoordinates(textController.text);
-                    },
-                    child: Text("Send",)),
-              ],
+          child: Text(
+            "Facing ${getCompassDirection(_azimuth)} (${degreesToString(_azimuth)})",
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
