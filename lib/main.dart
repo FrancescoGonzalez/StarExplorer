@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'coordinate_converter.dart';
+import 'calculator.dart';
 import 'location.dart';
 import 'rest.dart';
 import 'package:star_explorer/model/space_object_data.dart';
@@ -66,7 +66,7 @@ class _StargazingAppState extends State<StargazingApp> {
 
   void _updateOrientation() {
     setState(() {
-      _calculateOrientation();
+      _roll = calculateOrientation(_accelerometerValues);
     });
   }
 
@@ -80,7 +80,7 @@ class _StargazingAppState extends State<StargazingApp> {
     acc[2] = acc[2] / normAcc;
 
     // Calculate roll (rotation around y-axis)
-    _roll = atan2(acc[1], acc[2]) * (180 / pi) - 90;
+    _roll = atan2(acc[1], acc[2]) * (180 / pi) - 90; // "- 90" to make 0° when phone is vertical
   }
 
   void updatePosition() async {
@@ -130,8 +130,6 @@ class _StargazingAppState extends State<StargazingApp> {
             Text('Alt M31: ${degreesToString(altAzM31[0])}'),
             Text('Azimuth: ${degreesToString(_azimuth)}'),
             Text('Altitude: ${degreesToString(_roll)}'),
-            Text('Longitude: $lon'),
-            Text('Latitude: $lat'),
           ],
         ),
       ),

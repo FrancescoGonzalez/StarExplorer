@@ -60,3 +60,21 @@ double _calculateGST(DateTime observationTime) {
 
   return gst;
 }
+
+double calculateOrientation(List<double> accelerometerValues) {
+
+    // Normalize accelerometer values
+    double normAcc = sqrt(accelerometerValues[0] * accelerometerValues[0] + accelerometerValues[1] * accelerometerValues[1] + accelerometerValues[2] * accelerometerValues[2]);
+    accelerometerValues[0] = accelerometerValues[0] / normAcc;
+    accelerometerValues[1] = accelerometerValues[1] / normAcc;
+    accelerometerValues[2] = accelerometerValues[2] / normAcc;
+
+    double res = atan2(accelerometerValues[1], accelerometerValues[2]) * (180 / pi) - 90; // "- 90" to make 0° when phone is vertical
+
+    // adjust if angle is below -90°
+    if (res < -90) {
+      res = -180 - res;
+    }
+
+    return res; // "- 90" to make 0° when phone is vertical
+  }
