@@ -1,6 +1,6 @@
 import 'dart:math';
 
-String degreesToString(double degrees) {
+String degreesToString(double degrees) { // converts degrees to a string in the format "degrees° minutes' seconds\""
   int wholeDegrees = degrees.toInt();
   double fractionalPart = (degrees - wholeDegrees).abs();
 
@@ -8,23 +8,21 @@ String degreesToString(double degrees) {
   double secondsFractional = (fractionalPart * 60) - minutes;
   int seconds = (secondsFractional * 60).round();
 
-  // Handle rounding of seconds
   if (seconds == 60) {
     minutes += 1;
     seconds = 0;
   }
 
-  // Handle overflow of minutes to degrees
   if (minutes == 60) {
     wholeDegrees += 1;
     minutes = 0;
   }
 
-  // Construct the string result
   return "$wholeDegrees° $minutes' $seconds\"";
 }
 
-List<double> convertRaDecToAltAz(double raDegrees, double dec, double latitude, double longitude, DateTime observationTime) {
+List<double> convertRaDecToAltAz(double raDegrees, double dec, double latitude, double longitude, DateTime observationTime) { 
+  // returns a list containing [alt, az] of a celestial object from ra and dec, and the location and time
   double ra = raDegrees / 15.0;
   double gst = _calculateGST(observationTime);
   double lst = gst + longitude / 15.0;
@@ -61,18 +59,4 @@ double _calculateGST(DateTime observationTime) {
   }
 
   return gst;
-}
-
-// temporaneo
-void main() {
-  List<double> altAzM31 = convertRaDecToAltAz(
-    10.684799, // RA in degrees (M31)
-    41.269076,  // Dec in degrees (M31)
-    46.008774,  // Latitude (Lugano)
-    8.957026,   // Longitude (Lugano)
-    DateTime.now().toUtc()
-  );
-
-  print("Alt = ${degreesToString(altAzM31[0])}");
-  print("Az = ${degreesToString(altAzM31[1])}");
 }
