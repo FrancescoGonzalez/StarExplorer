@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
@@ -81,7 +82,7 @@ class _StargazingAppState extends State<StargazingApp> {
         lon = p.longitude;
       });
     } catch (e) {
-      print('Error getting position: $e');
+      throw Exception(e);
     }
   }
 
@@ -91,9 +92,26 @@ class _StargazingAppState extends State<StargazingApp> {
       setState(() {
         ra = dso.getRa;
         dec = dso.getDec;
+        objectName = dso.getName;
       });
     } catch (e) {
-      print('Error getting space object coordinates: $e');
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Error'),
+          content: Text('$e'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
     }
   }
 
@@ -140,8 +158,7 @@ class _StargazingAppState extends State<StargazingApp> {
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      updateSpaceObjectCoordinates(textController.text);
-                      objectName = textController.text;
+                        updateSpaceObjectCoordinates(textController.text);
                     },
                     child: Text("Send",)),
               ],
