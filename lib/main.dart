@@ -129,17 +129,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
             fontWeight: FontWeight.bold),
         backgroundColor: nightSkyColor,
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Az $objectName: ${degreesToString(altAz[1])}'),
-                Text('Alt $objectName: ${degreesToString(altAz[0])}'),
-              ],
-            ),
-          ),
           Container(
             color: nightSkyColor,
             child: Padding(
@@ -171,6 +162,17 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                 ),
               ),
             ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Az $objectName: ${degreesToString(altAz[1])}',
+              ),
+              Text(
+                'Alt $objectName: ${degreesToString(altAz[0])}',
+              ),
+            ],
           ),
         ],
       ),
