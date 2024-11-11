@@ -1,6 +1,7 @@
 import 'dart:math';
 
-String degreesToString(double degrees) { // converts degrees to a string in the format "degrees° minutes' seconds\""
+String degreesToString(double degrees) {
+  // converts degrees to a string in the format "degrees° minutes' seconds\""
   int wholeDegrees = degrees.toInt();
   double fractionalPart = (degrees - wholeDegrees).abs();
 
@@ -21,7 +22,8 @@ String degreesToString(double degrees) { // converts degrees to a string in the 
   return "$wholeDegrees° $minutes' $seconds\"";
 }
 
-List<double> convertRaDecToAltAz(double raDegrees, double dec, double latitude, double longitude, DateTime observationTime) { 
+List<double> convertRaDecToAltAz(double raDegrees, double dec, double latitude,
+    double longitude, DateTime observationTime) {
   // returns a list containing [alt, az] of a celestial object from ra and dec, and the location and time
   double ra = raDegrees / 15.0;
   double gst = _calculateGST(observationTime);
@@ -32,11 +34,10 @@ List<double> convertRaDecToAltAz(double raDegrees, double dec, double latitude, 
   double decRad = dec * pi / 180;
   double latRad = latitude * pi / 180;
 
-  double altitude = asin(sin(decRad) * sin(latRad) + cos(decRad) * cos(latRad) * cos(haRad));
-  double azimuth = atan2(
-    -sin(haRad),
-    tan(decRad) * cos(latRad) - sin(latRad) * cos(haRad)
-  );
+  double altitude =
+      asin(sin(decRad) * sin(latRad) + cos(decRad) * cos(latRad) * cos(haRad));
+  double azimuth =
+      atan2(-sin(haRad), tan(decRad) * cos(latRad) - sin(latRad) * cos(haRad));
 
   altitude = altitude * 180 / pi;
   azimuth = azimuth * 180 / pi;
@@ -62,43 +63,76 @@ double _calculateGST(DateTime observationTime) {
 }
 
 double calculateOrientation(List<double> accelerometerValues) {
+  // Normalize accelerometer values
+  double normAcc = sqrt(accelerometerValues[0] * accelerometerValues[0] +
+      accelerometerValues[1] * accelerometerValues[1] +
+      accelerometerValues[2] * accelerometerValues[2]);
+  accelerometerValues[0] = accelerometerValues[0] / normAcc;
+  accelerometerValues[1] = accelerometerValues[1] / normAcc;
+  accelerometerValues[2] = accelerometerValues[2] / normAcc;
 
-    // Normalize accelerometer values
-    double normAcc = sqrt(accelerometerValues[0] * accelerometerValues[0] + accelerometerValues[1] * accelerometerValues[1] + accelerometerValues[2] * accelerometerValues[2]);
-    accelerometerValues[0] = accelerometerValues[0] / normAcc;
-    accelerometerValues[1] = accelerometerValues[1] / normAcc;
-    accelerometerValues[2] = accelerometerValues[2] / normAcc;
+  double res =
+      atan2(accelerometerValues[1], accelerometerValues[2]) * (180 / pi) -
+          90; // "- 90" to make 0° when phone is vertical
 
-    double res = atan2(accelerometerValues[1], accelerometerValues[2]) * (180 / pi) - 90; // "- 90" to make 0° when phone is vertical
-
-    // adjust if angle is below -90°
-    if (res < -90) {
-      res = -180 - res;
-    }
-
-    return res; // "- 90" to make 0° when phone is vertical
+  // adjust if angle is below -90°
+  if (res < -90) {
+    res = -180 - res;
   }
 
-String getCompassDirection(double degrees) {
-if (degrees < 0 || degrees >= 360) {
-  throw ArgumentError("Error");
+  return res; // "- 90" to make 0° when phone is vertical
 }
 
-if (degrees >= 337.5 || degrees < 22.5) {
-  return "N";
-} else if (degrees >= 22.5 && degrees < 67.5) {
-  return "NE";
-} else if (degrees >= 67.5 && degrees < 112.5) {
-  return "E";
-} else if (degrees >= 112.5 && degrees < 157.5) {
-  return "SE";
-} else if (degrees >= 157.5 && degrees < 202.5) {
-  return "S";
-} else if (degrees >= 202.5 && degrees < 247.5) {
-  return "SW";
-} else if (degrees >= 247.5 && degrees < 292.5) {
-  return "W";
-} else {
-  return "NW";
+String getCompassDirection(double degrees) {
+  if (degrees < 0 || degrees >= 360) {
+    throw ArgumentError("Error");
+  }
+
+  if (degrees >= 337.5 || degrees < 22.5) {
+    return "N";
+  } else if (degrees >= 22.5 && degrees < 67.5) {
+    return "NE";
+  } else if (degrees >= 67.5 && degrees < 112.5) {
+    return "E";
+  } else if (degrees >= 112.5 && degrees < 157.5) {
+    return "SE";
+  } else if (degrees >= 157.5 && degrees < 202.5) {
+    return "S";
+  } else if (degrees >= 202.5 && degrees < 247.5) {
+    return "SW";
+  } else if (degrees >= 247.5 && degrees < 292.5) {
+    return "W";
+  } else {
+    return "NW";
+  }
 }
+
+double getSlope(double x1, double y1, double x2, double y2) {
+  double dy = y2 - y1;
+  double dx = x2 - x1;
+  return dy / dx;
+}
+
+double getPointX(double degrees, double maxWidthScreen) {
+  if (degrees >= 45) {
+    return maxWidthScreen;
+  } else if (degrees <= -45) {
+    return 0;
+  } else if (degrees == 0) {
+    return maxWidthScreen / 2;
+  } else {
+    return ((degrees + 45) / 90) * maxWidthScreen;
+  }
+}
+
+double getPointY(double degrees, double maxHeightScreen) {
+  if (degrees >= 22.5) {
+    return 0;
+  } else if (degrees <= -22.5) {
+    return maxHeightScreen;
+  } else if (degrees == 0) {
+    return maxHeightScreen / 2;
+  } else {
+    return (1 -((degrees + 22.5) / 45)) * maxHeightScreen;
+  }
 }

@@ -34,12 +34,15 @@ class StarExplorerApp extends StatefulWidget {
 }
 
 class StarExplorerAppState extends State<StarExplorerApp> {
-  double _roll = 0.0;
-  double _azimuth = 0.0;
+  double alt = 0.0;
+  double az = 0.0;
   double lat = 0.0;
   double lon = 0.0;
   double ra = 0.0;
   double dec = 0.0;
+  double arrowAngle = 0.0;
+  double azDSO = 0.0;
+  double altDSO = 0.0;
 
   Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
 
@@ -58,19 +61,20 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     accelerometerEvents.listen((AccelerometerEvent event) {
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
+      arrowAngle = getSlope(alt, az, altDSO, azDSO);
     });
 
     // Listen to compass events for azimuth calculation
     FlutterCompass.events?.listen((CompassEvent event) {
       setState(() {
-        _azimuth = event.heading ?? 0;
+        az = event.heading ?? 0;
       });
     });
   }
 
   void _updateOrientation() {
     setState(() {
-      _roll = calculateOrientation(_accelerometerValues);
+      alt = calculateOrientation(_accelerometerValues);
     });
   }
 
@@ -120,6 +124,11 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     List<double> altAz =
         convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
 
+    setState(() {
+      altDSO = altAz[0];
+      azDSO = altAz[1];
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Star Explorer'),
@@ -137,42 +146,73 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               padding: EdgeInsets.all(16.0),
               child: SizedBox(
                 width: double.infinity,
-                height: 50,
-                child: Row(
+                height: 100,
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: textController,
-                        decoration: InputDecoration(
-                          labelText: "Insert DSO",
-                          labelStyle: TextStyle(
-                              color: const Color.fromARGB(255, 223, 222, 255)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: textController,
+                            decoration: InputDecoration(
+                              labelText: "Insert DSO",
+                              labelStyle: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 223, 222, 255)),
+                            ),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
+                        ElevatedButton(
+                          onPressed: () {
+                            updateSpaceObjectCoordinates(textController.text);
+                          },
+                          child: Text("Send"),
+                        ),
+                      ],
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        updateSpaceObjectCoordinates(textController.text);
-                      },
-                      child: Text("Send"),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Az $objectName: ${degreesToString(azDSO)} ${getPointX(azDSO - az, 386).toStringAsFixed(2)}\nAlt $objectName: ${degreesToString(altDSO)} ${getPointY(altDSO - alt, 530).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Az $objectName: ${degreesToString(altAz[1])}',
-              ),
-              Text(
-                'Alt $objectName: ${degreesToString(altAz[0])}',
-              ),
-            ],
+          Expanded(
+            child: Stack(
+              children: [
+                Center(
+                  child: Transform.rotate(
+                    angle: arrowAngle,
+                    child: Image.asset(
+                      'assets/red_arrow.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: getPointX(azDSO - az, 386),
+                  top: getPointY(altDSO - alt, 530),
+                  child: Icon(
+                    Icons.circle,
+                    size: 10,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -181,7 +221,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Text(
-            "Facing ${getCompassDirection(_azimuth)} (${degreesToString(_azimuth)})",
+            "Facing ${getCompassDirection(az)} (${degreesToString(az)})",
             style: TextStyle(
               fontSize: 25,
               color: Colors.white,
