@@ -43,6 +43,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   double arrowAngle = 0.0;
   double azDSO = 0.0;
   double altDSO = 0.0;
+  double arrowOpacity = 1;
 
   Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
 
@@ -59,9 +60,15 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
     // Listen to accelerometer events for roll calculation
     accelerometerEvents.listen((AccelerometerEvent event) {
+      int multiplier = 60;
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
       arrowAngle = calculateAngleFromSlope(193, 265, getPointX(azDSO - az, 386), getPointY(altDSO - alt, 530));
+      if (getPointX(azDSO - az, 386) > 193 - multiplier && getPointX(azDSO - az, 386) < 193 + multiplier && getPointY(altDSO - alt, 530) > 265 - multiplier && getPointY(altDSO - alt, 530) < 265 + multiplier){
+        arrowOpacity = 0.1;
+      } else {
+        arrowOpacity = 1;
+      }
     });
 
     // Listen to compass events for azimuth calculation
@@ -199,6 +206,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                       'assets/red_arrow.png',
                       width: 50,
                       height: 50,
+                      color: Colors.red.withOpacity(arrowOpacity),
                     ),
                   ),
                 ),
