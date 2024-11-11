@@ -61,7 +61,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     accelerometerEvents.listen((AccelerometerEvent event) {
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
-      arrowAngle = getSlope(alt, az, altDSO, azDSO);
+      arrowAngle = calculateAngleFromSlope(193, 265, getPointX(azDSO - az, 386), getPointY(altDSO - alt, 530));
     });
 
     // Listen to compass events for azimuth calculation
@@ -177,7 +177,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Az $objectName: ${degreesToString(azDSO)} ${getPointX(azDSO - az, 386).toStringAsFixed(2)}\nAlt $objectName: ${degreesToString(altDSO)} ${getPointY(altDSO - alt, 530).toStringAsFixed(2)}',
+                          'Az $objectName: ${degreesToString(azDSO)} \nAlt $objectName: ${degreesToString(altDSO)}',
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -194,7 +194,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               children: [
                 Center(
                   child: Transform.rotate(
-                    angle: arrowAngle,
+                    angle: arrowAngle + 3.141592 / 2,
                     child: Image.asset(
                       'assets/red_arrow.png',
                       width: 50,
@@ -206,7 +206,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                   left: getPointX(azDSO - az, 386),
                   top: getPointY(altDSO - alt, 530),
                   child: Icon(
-                    Icons.circle,
+                    Icons.star,
                     size: 10,
                     color: Colors.blue,
                   ),

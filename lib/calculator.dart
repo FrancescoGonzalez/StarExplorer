@@ -136,3 +136,8 @@ double getPointY(double degrees, double maxHeightScreen) {
     return (1 -((degrees + 22.5) / 45)) * maxHeightScreen;
   }
 }
+
+
+double calculateAngleFromSlope(double x1, double y1, double x2, double y2) {
+  return atan2(y2 - y1, x2 - x1);
+}
