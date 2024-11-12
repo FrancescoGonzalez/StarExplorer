@@ -113,7 +113,15 @@ double getSlope(double x1, double y1, double x2, double y2) {
   return dy / dx;
 }
 
-double getPointX(double degrees, double maxWidthScreen) {
+double getPointX(double degreesRotatingObject, double degreesDSO, double maxWidthScreen) {
+  double degrees = degreesDSO - degreesRotatingObject;
+
+  if (degrees > 180) {
+    degrees -= 360;
+} else if (degrees < -180) {
+    degrees += 360;
+}
+
   if (degrees >= 45) {
     return maxWidthScreen;
   } else if (degrees <= -45) {
@@ -125,7 +133,8 @@ double getPointX(double degrees, double maxWidthScreen) {
   }
 }
 
-double getPointY(double degrees, double maxHeightScreen) {
+double getPointY(double degreesRotatingObject, double degreesDSO, double maxHeightScreen) {
+  double degrees = degreesDSO - degreesRotatingObject;
   if (degrees >= 22.5) {
     return 0;
   } else if (degrees <= -22.5) {

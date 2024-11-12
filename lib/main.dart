@@ -63,8 +63,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
       int multiplier = 60;
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
-      arrowAngle = calculateAngleFromSlope(193, 265, getPointX(azDSO - az, 386), getPointY(altDSO - alt, 530));
-      if (getPointX(azDSO - az, 386) > 193 - multiplier && getPointX(azDSO - az, 386) < 193 + multiplier && getPointY(altDSO - alt, 530) > 265 - multiplier && getPointY(altDSO - alt, 530) < 265 + multiplier){
+      arrowAngle = calculateAngleFromSlope(193, 265, getPointX(az, azDSO, 386), getPointY(alt, altDSO, 530));
+      if (getPointX(az, azDSO, 386) > 193 - multiplier && getPointX(az, azDSO, 386) < 193 + multiplier && getPointY(alt, altDSO, 530) > 265 - multiplier && getPointY(alt, altDSO, 530) < 265 + multiplier){
         arrowOpacity = 0.1;
       } else {
         arrowOpacity = 1;
@@ -211,8 +211,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                   ),
                 ),
                 Positioned(
-                  left: getPointX(azDSO - az, 386),
-                  top: getPointY(altDSO - alt, 530),
+                  left: getPointX(az, azDSO, 386),
+                  top: getPointY(alt, altDSO, 530),
                   child: Icon(
                     Icons.star,
                     size: 10,
