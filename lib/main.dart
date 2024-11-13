@@ -211,13 +211,13 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                   ),
                 ),
                 Positioned(
-                  left: getPointX(az, azDSO, 386),
+                  left: getPointX(az, azDSO, 365),
                   top: getPointY(alt, altDSO, 530),
                   child: Icon(
                     Icons.star,
-                    size: 10,
-                    color: Colors.blue,
-                  ),
+                        size: 30,
+                        color: Colors.blue,
+                      ),
                 ),
               ],
             ),
