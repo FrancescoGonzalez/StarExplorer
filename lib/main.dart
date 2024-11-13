@@ -44,6 +44,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   double azDSO = 0.0;
   double altDSO = 0.0;
   double arrowOpacity = 1;
+  double pointX = 0.0;
+  double pointY = 0.0;
 
   Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
 
@@ -56,15 +58,14 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     super.initState();
 
     updatePosition();
-    updateSpaceObjectCoordinates('M31'); //base value
+    updateSpaceObjectCoordinates('andromeda'); //base value
 
-    // Listen to accelerometer events for roll calculation
     accelerometerEvents.listen((AccelerometerEvent event) {
-      int multiplier = 60;
+      int multiplier = 60; // value for the distance for the arrow to "disappear"
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
-      arrowAngle = calculateAngleFromSlope(193, 265, getPointX(az, azDSO, 386), getPointY(alt, altDSO, 530));
-      if (getPointX(az, azDSO, 386) > 193 - multiplier && getPointX(az, azDSO, 386) < 193 + multiplier && getPointY(alt, altDSO, 530) > 265 - multiplier && getPointY(alt, altDSO, 530) < 265 + multiplier){
+      arrowAngle = calculateAngleFromSlope(193, 265, pointX, pointY);
+      if (pointX > 193 - multiplier && pointX < 193 + multiplier && pointY > 265 - multiplier && pointY < 265 + multiplier){
         arrowOpacity = 0.1;
       } else {
         arrowOpacity = 1;
@@ -82,6 +83,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   void _updateOrientation() {
     setState(() {
       alt = calculateOrientation(_accelerometerValues);
+      pointX = getPointX(az, azDSO, 365);
+      pointY = getPointY(alt, altDSO, 530);
     });
   }
 
@@ -153,7 +156,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               padding: EdgeInsets.all(16.0),
               child: SizedBox(
                 width: double.infinity,
-                height: 100,
+                height: 120,
                 child: Column(
                   children: [
                     Row(
@@ -184,7 +187,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Az $objectName: ${degreesToString(azDSO)} \nAlt $objectName: ${degreesToString(altDSO)}',
+                          '$objectName \nAz: ${degreesToString(azDSO)} \nAlt: ${degreesToString(altDSO)}',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -211,8 +215,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                   ),
                 ),
                 Positioned(
-                  left: getPointX(az, azDSO, 365),
-                  top: getPointY(alt, altDSO, 530),
+                  left: pointX,
+                  top: pointY,
                   child: Icon(
                     Icons.star,
                         size: 30,
