@@ -63,7 +63,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     super.initState();
 
     updatePosition();
-    updateSpaceObjectCoordinates('andromeda'); //base value
+    updateSpaceObjectCoordinates('m31'); //base value
 
     accelerometerEvents.listen((AccelerometerEvent event) {
       int multiplier =
@@ -265,10 +265,15 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                         .map((dso) => Positioned(
                             left: getPointXUnclamped(az, dso.az, 365),
                             top: getPointYUnclamped(alt, dso.alt, 530),
-                            child: Image.asset(
-                              'assets/icon/galaxy.png',
-                              scale: 5,
-                              color: Colors.black,
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  'assets/icon/galaxy.png',
+                                  scale: 5,
+                                  color: Colors.black,
+                                ),
+                                Text(dso.getName, style: TextStyle(fontSize: 8))
+                              ],
                             )))
                         .toList()),
               ],
