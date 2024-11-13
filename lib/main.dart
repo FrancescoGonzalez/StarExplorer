@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:star_explorer/model/space_object_data_alt_az.dart';
 
 import 'calculator.dart';
 import 'location.dart';
@@ -46,6 +49,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   double arrowOpacity = 1;
   double pointX = 0.0;
   double pointY = 0.0;
+  List<SpaceObjectDataAltAz> majorStars = [];
+  List<SpaceObjectDataAltAz> majorDSO = [];
 
   Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
 
@@ -61,11 +66,15 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     updateSpaceObjectCoordinates('andromeda'); //base value
 
     accelerometerEvents.listen((AccelerometerEvent event) {
-      int multiplier = 60; // value for the distance for the arrow to "disappear"
+      int multiplier =
+          60; // value for the distance for the arrow to "disappear"
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
       arrowAngle = calculateAngleFromSlope(193, 265, pointX, pointY);
-      if (pointX > 193 - multiplier && pointX < 193 + multiplier && pointY > 265 - multiplier && pointY < 265 + multiplier){
+      if (pointX > 193 - multiplier &&
+          pointX < 193 + multiplier &&
+          pointY > 265 - multiplier &&
+          pointY < 265 + multiplier) {
         arrowOpacity = 0.1;
       } else {
         arrowOpacity = 1;
@@ -78,6 +87,19 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         az = event.heading ?? 0;
       });
     });
+
+    Timer(Duration(seconds: 2), () {
+      updateMajorStars();
+    });
+
+    Timer.periodic(Duration(seconds: 60), (Timer t) {
+      updateMajorStars();
+    });
+  }
+
+  void updateMajorStars() async {
+    majorStars = await fetchMajorStarCoordinates(lat, lon);
+    majorDSO = await fetchMajorDSOCoordinates(lat, lon);
   }
 
   void _updateOrientation() {
@@ -108,6 +130,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         dec = dso.getDec;
         objectName = dso.getName;
       });
+      updateMajorStars();
     } catch (e) {
       showDialog(
         context: context,
@@ -219,10 +242,35 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                   top: pointY,
                   child: Icon(
                     Icons.star,
-                        size: 30,
-                        color: Colors.blue,
-                      ),
+                    size: 30,
+                    color: Colors.blue,
+                  ),
                 ),
+                Stack(
+                    children: majorStars
+                        .where((star) => star.name != objectName)
+                        .map((star) => Positioned(
+                              left: getPointXUnclamped(az, star.az, 365),
+                              top: getPointYUnclamped(alt, star.alt, 530),
+                              child: Icon(
+                                Icons.circle,
+                                size: 5,
+                                color: Colors.black,
+                              ),
+                            ))
+                        .toList()),
+                Stack(
+                    children: majorDSO
+                        .where((dso) => dso.name != objectName)
+                        .map((dso) => Positioned(
+                            left: getPointXUnclamped(az, dso.az, 365),
+                            top: getPointYUnclamped(alt, dso.alt, 530),
+                            child: Image.asset(
+                              'assets/icon/galaxy.png',
+                              scale: 5,
+                              color: Colors.black,
+                            )))
+                        .toList()),
               ],
             ),
           ),
