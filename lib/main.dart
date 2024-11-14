@@ -84,7 +84,14 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     // Listen to compass events for azimuth calculation
     FlutterCompass.events?.listen((CompassEvent event) {
       setState(() {
-        az = event.heading ?? 0;
+        double newAz = event.heading ?? 0;
+        double diff = (newAz - az).abs();
+
+        if (diff > 160 && diff < 200 && !(az > -20 && az < 20)) {
+          az = (newAz + 180) % 360;
+        } else {
+          az = newAz;
+        }
       });
     });
 

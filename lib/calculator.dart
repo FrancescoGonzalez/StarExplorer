@@ -85,7 +85,7 @@ double calculateOrientation(List<double> accelerometerValues) {
 
 String getCompassDirection(double degrees) {
   if (degrees < 0 || degrees >= 360) {
-    throw ArgumentError("Error");
+    degrees = (degrees + 360) % 360;
   }
 
   if (degrees >= 337.5 || degrees < 22.5) {
