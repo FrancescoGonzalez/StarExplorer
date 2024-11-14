@@ -113,7 +113,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     setState(() {
       alt = calculateOrientation(_accelerometerValues);
       pointX = getPointX(az, azDSO, 365);
-      pointY = getPointY(alt, altDSO, 530);
+      pointY = getPointY(alt, altDSO, 490);
     });
   }
 
