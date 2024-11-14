@@ -247,9 +247,9 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                 Positioned(
                   left: pointX,
                   top: pointY,
-                  child: Icon(
-                    Icons.star,
-                    size: 30,
+                  child: Image.asset(
+                    'assets/icon/target.png',
+                    scale: 15,
                     color: Colors.blue,
                   ),
                 ),

@@ -26,6 +26,8 @@ flutter:
   assets:
     - assets/icon/icon.png
     - assets/red_arrow.png
+    - assets/icon/galaxy.png
+    - assets/icon/target.png
 
 flutter_launcher_icons:
   android: true
