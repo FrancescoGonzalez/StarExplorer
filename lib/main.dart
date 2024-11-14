@@ -231,59 +231,63 @@ class StarExplorerAppState extends State<StarExplorerApp> {
             ),
           ),
           Expanded(
-            child: Stack(
-              children: [
-                Center(
-                  child: Transform.rotate(
-                    angle: arrowAngle + 3.141592 / 2,
-                    child: Image.asset(
-                      'assets/red_arrow.png',
-                      width: 50,
-                      height: 50,
-                      color: Colors.red.withOpacity(arrowOpacity),
+            child: Container(
+              color: Colors.black,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Transform.rotate(
+                      angle: arrowAngle + 3.141592 / 2,
+                      child: Image.asset(
+                        'assets/red_arrow.png',
+                        width: 50,
+                        height: 50,
+                        color: Colors.yellow.withOpacity(arrowOpacity),
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                  left: pointX,
-                  top: pointY,
-                  child: Image.asset(
-                    'assets/icon/target.png',
-                    scale: 15,
-                    color: Colors.blue,
+                  Positioned(
+                    left: pointX,
+                    top: pointY,
+                    child: Image.asset(
+                      'assets/icon/target.png',
+                      scale: 15,
+                      color: Colors.red,
+                    ),
                   ),
-                ),
-                Stack(
-                    children: majorStars
-                        .where((star) => star.name != objectName)
-                        .map((star) => Positioned(
-                              left: getPointXUnclamped(az, star.az, 365),
-                              top: getPointYUnclamped(alt, star.alt, 530),
-                              child: Icon(
-                                Icons.circle,
-                                size: 5,
-                                color: Colors.black,
-                              ),
-                            ))
-                        .toList()),
-                Stack(
-                    children: majorDSO
-                        .where((dso) => dso.name != objectName)
-                        .map((dso) => Positioned(
-                            left: getPointXUnclamped(az, dso.az, 365),
-                            top: getPointYUnclamped(alt, dso.alt, 530),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  'assets/icon/galaxy.png',
-                                  scale: 5,
-                                  color: Colors.black,
+                  Stack(
+                      children: majorStars
+                          .where((star) => star.name != objectName)
+                          .map((star) => Positioned(
+                                left: getPointXUnclamped(az, star.az, 365),
+                                top: getPointYUnclamped(alt, star.alt, 530),
+                                child: Icon(
+                                  Icons.circle,
+                                  size: 5,
+                                  color: Colors.white,
                                 ),
-                                Text(dso.getName, style: TextStyle(fontSize: 8))
-                              ],
-                            )))
-                        .toList()),
-              ],
+                              ))
+                          .toList()),
+                  Stack(
+                      children: majorDSO
+                          .where((dso) => dso.name != objectName)
+                          .map((dso) => Positioned(
+                              left: getPointXUnclamped(az, dso.az, 365),
+                              top: getPointYUnclamped(alt, dso.alt, 530),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/icon/galaxy.png',
+                                    scale: 5,
+                                    color: Colors.white,
+                                  ),
+                                  Text(dso.getName,
+                                      style: TextStyle(fontSize: 8, color: Colors.white))
+                                ],
+                              )))
+                          .toList()),
+                ],
+              ),
             ),
           ),
         ],
