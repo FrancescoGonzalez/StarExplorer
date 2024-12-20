@@ -12,6 +12,10 @@ import 'location.dart';
 import 'rest.dart';
 import '/model/space_object_data.dart';
 
+import 'components/custom_app_bar.dart';
+import 'components/custom_footer.dart';
+import 'components/custom_nav.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -170,66 +174,20 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Star Explorer'),
-        titleTextStyle: TextStyle(
-            color: const Color.fromARGB(225, 22, 106, 151),
-            fontSize: 24,
-            fontWeight: FontWeight.bold),
-        backgroundColor: nightSkyColor,
-      ),
+      appBar: CustomAppBar(),
       body: Column(
         children: [
-          Container(
-            color: nightSkyColor,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 120,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: textController,
-                            decoration: InputDecoration(
-                              labelText: "Insert DSO",
-                              labelStyle: TextStyle(
-                                  color:
-                                      const Color.fromARGB(255, 223, 222, 255)),
-                            ),
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            updateSpaceObjectCoordinates(textController.text);
-                          },
-                          child: Text("Send"),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '$objectName \nAz: ${degreesToString(azDSO)} \nAlt: ${degreesToString(altDSO)}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          CustomNav(
+              objectName,
+              degreesToString(altDSO),
+              degreesToString(azDSO),
+              textController,
+              ElevatedButton(
+                onPressed: () {
+                  updateSpaceObjectCoordinates(textController.text);
+                },
+                child: Text("Send"),
+              )),
           Expanded(
             child: Container(
               color: Colors.black,
@@ -282,7 +240,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                                     color: Colors.white,
                                   ),
                                   Text(dso.getName,
-                                      style: TextStyle(fontSize: 8, color: Colors.white))
+                                      style: TextStyle(
+                                          fontSize: 8, color: Colors.white))
                                 ],
                               )))
                           .toList()),
@@ -292,20 +251,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        color: nightSkyColor,
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            "Facing ${getCompassDirection(az)} (${degreesToString(az)})",
-            style: TextStyle(
-              fontSize: 25,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+      bottomNavigationBar:
+          CustomFooter(getCompassDirection(az), degreesToString(az)),
     );
   }
 }
