@@ -69,7 +69,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     updatePosition();
     updateSpaceObjectCoordinates('m31'); //base value
 
-    accelerometerEvents.listen((AccelerometerEvent event) {
+    accelerometerEventStream().listen((AccelerometerEvent event) {
       int multiplier =
           60; // value for the distance for the arrow to "disappear"
       _accelerometerValues = [event.x, event.y, event.z];
@@ -200,7 +200,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                         'assets/red_arrow.png',
                         width: 50,
                         height: 50,
-                        color: Colors.yellow.withOpacity(arrowOpacity),
+                        color: Color.fromRGBO(255, 255, 0, arrowOpacity),
                       ),
                     ),
                   ),
