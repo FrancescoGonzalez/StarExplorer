@@ -26,9 +26,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
       debugShowCheckedModeBanner: false,
       home: StarExplorerApp(),
     );
@@ -58,6 +55,9 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   List<SpaceObjectDataAltAz> majorStars = [];
   List<SpaceObjectDataAltAz> majorDSO = [];
 
+  double HorizontalFoV = 20.0; //default
+  double VerticalFoV = 3.9; // default: Iphone 15
+
   Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
 
   List<double> _accelerometerValues = [0.0, 0.0, 0.0];
@@ -68,6 +68,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   void initState() {
     super.initState();
 
+    VerticalFoV = getVFov(HorizontalFoV);
     updatePosition();
     updateSpaceObjectCoordinates('m31'); //base value
 
@@ -108,6 +109,11 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     Timer.periodic(Duration(seconds: 60), (Timer t) {
       updateMajorStars();
     });
+  }
+
+  double getVFov(double HFov) {
+    double aspectRatio = MediaQuery.of(context).size.height / MediaQuery.of(context).size.width;
+    return HFov / aspectRatio;
   }
 
   void updateMajorStars() async {
