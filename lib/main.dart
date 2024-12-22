@@ -15,6 +15,7 @@ import '/model/space_object_data.dart';
 import 'components/custom_app_bar.dart';
 import 'components/custom_footer.dart';
 import 'components/custom_nav.dart';
+import 'components/loading_widget.dart';
 
 void main() => runApp(MyApp());
 
@@ -59,7 +60,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
 
   List<double> _accelerometerValues = [0.0, 0.0, 0.0];
-  final TextEditingController textController = TextEditingController();
+  TextEditingController textController = TextEditingController();
   String objectName = "LOADING";
 
   @override
@@ -172,6 +173,10 @@ class StarExplorerAppState extends State<StarExplorerApp> {
       altDSO = altAz[0];
       azDSO = altAz[1];
     });
+
+    if (majorDSO.isEmpty) {
+      return LoadingPage();
+    }
 
     return Scaffold(
       appBar: CustomAppBar(),
