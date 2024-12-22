@@ -16,6 +16,7 @@ import 'components/custom_app_bar.dart';
 import 'components/custom_footer.dart';
 import 'components/custom_nav.dart';
 import 'components/loading_widget.dart';
+import 'components/error.dart';
 
 void main() => runApp(MyApp());
 
@@ -144,23 +145,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
       });
       updateMajorStars();
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            title: Text('Error'),
-            content: Text('$e'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+      Error('$e').showErrorDialog(context);
     }
   }
 
