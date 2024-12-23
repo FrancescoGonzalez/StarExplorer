@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
@@ -67,8 +66,6 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   @override
   void initState() {
     super.initState();
-
-    VerticalFoV = getVFov(HorizontalFoV);
     updatePosition();
     updateSpaceObjectCoordinates('m31'); //base value
 
@@ -157,6 +154,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
   @override
   Widget build(BuildContext context) {
+    VerticalFoV = getVFov(HorizontalFoV);
     List<double> altAz =
         convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
 
