@@ -113,9 +113,8 @@ double getSlope(double x1, double y1, double x2, double y2) {
   return dy / dx;
 }
 
-double getPointX(double degreesRotatingObject, double degreesDSO, double maxWidthScreen) {
+double getPointX(double degreesRotatingObject, double degreesDSO, double maxWidthScreen, double HFoV) {
   double degrees = degreesDSO - degreesRotatingObject;
-  double FoV = 20.0;
 
   if (degrees > 180) {
     degrees -= 360;
@@ -123,39 +122,38 @@ double getPointX(double degreesRotatingObject, double degreesDSO, double maxWidt
     degrees += 360;
 }
 
-  if (degrees >= FoV) {
+  if (degrees >= HFoV) {
     return maxWidthScreen;
-  } else if (degrees <= -FoV) {
+  } else if (degrees <= -HFoV) {
     return 0;
   } else if (degrees == 0) {
     return maxWidthScreen / 2;
   } else {
-    return ((degrees + FoV) / (2 * FoV)) * maxWidthScreen;
+    return ((degrees + HFoV) / (2 * HFoV)) * maxWidthScreen;
   }
 }
 
-double getPointXUnclamped(double degreesRotatingObject, double degreesDSO, double maxWidthScreen) {
-  double res = getPointX(degreesRotatingObject, degreesDSO, maxWidthScreen);
+double getPointXUnclamped(double degreesRotatingObject, double degreesDSO, double maxWidthScreen, double HFov) {
+  double res = getPointX(degreesRotatingObject, degreesDSO, maxWidthScreen, HFov);
   return res == 0 || res == maxWidthScreen ? maxWidthScreen + 100 : res;
 }
 
-double getPointY(double degreesRotatingObject, double degreesDSO, double maxHeightScreen) {
+double getPointY(double degreesRotatingObject, double degreesDSO, double maxHeightScreen, double VFov) {
   double degrees = degreesDSO - degreesRotatingObject;
-  double FoV = 9.3;
 
-  if (degrees >= FoV) {
+  if (degrees >= VFov) {
     return 0;
-  } else if (degrees <= -FoV) {
+  } else if (degrees <= -VFov) {
     return maxHeightScreen;
   } else if (degrees == 0) {
     return maxHeightScreen / 2;
   } else {
-    return (1 -((degrees + FoV) / (2 * FoV))) * maxHeightScreen;
+    return (1 -((degrees + VFov) / (2 * VFov))) * maxHeightScreen;
   }
 }
 
-double getPointYUnclamped(double degreesRotatingObject, double degreesDSO, double maxHeightScreen) {
-  double res = getPointY(degreesRotatingObject, degreesDSO, maxHeightScreen);
+double getPointYUnclamped(double degreesRotatingObject, double degreesDSO, double maxHeightScreen, double VFov) {
+  double res = getPointY(degreesRotatingObject, degreesDSO, maxHeightScreen, VFov);
   return res == 0 || res == maxHeightScreen ? maxHeightScreen + 100 : res;
 }
 

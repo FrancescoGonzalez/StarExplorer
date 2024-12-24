@@ -121,8 +121,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   void _updateOrientation() {
     setState(() {
       alt = calculateOrientation(_accelerometerValues);
-      pointX = getPointX(az, azDSO, 365);
-      pointY = getPointY(alt, altDSO, 490);
+      pointX = getPointX(az, azDSO, 365, HorizontalFoV);
+      pointY = getPointY(alt, altDSO, 490, VerticalFoV);
     });
   }
 
@@ -211,8 +211,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                       children: majorStars
                           .where((star) => star.name != objectName)
                           .map((star) => Positioned(
-                                left: getPointXUnclamped(az, star.az, 365),
-                                top: getPointYUnclamped(alt, star.alt, 530),
+                                left: getPointXUnclamped(az, star.az, 365, HorizontalFoV),
+                                top: getPointYUnclamped(alt, star.alt, 530, VerticalFoV),
                                 child: Icon(
                                   Icons.circle,
                                   size: 5,
@@ -224,8 +224,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                       children: majorDSO
                           .where((dso) => dso.name != objectName)
                           .map((dso) => Positioned(
-                              left: getPointXUnclamped(az, dso.az, 365),
-                              top: getPointYUnclamped(alt, dso.alt, 530),
+                              left: getPointXUnclamped(az, dso.az, 365, HorizontalFoV),
+                              top: getPointYUnclamped(alt, dso.alt, 530, VerticalFoV),
                               child: Row(
                                 children: [
                                   Image.asset(
@@ -243,6 +243,34 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               ),
             ),
           ),
+          Container(
+            color: nightSkyColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Fov: $HorizontalFoV",
+                  style: TextStyle(
+                      color: Colors.white
+                  ),
+                ),
+                Container(
+                  width: 300,
+                  child: Slider(
+                    value: HorizontalFoV,
+                    max: 50,
+                    min: 10,
+                    divisions: 40,
+                    label: HorizontalFoV.round().toString(),
+                    onChanged: (double value) {
+                      HorizontalFoV = value;
+                      VerticalFoV = getVFov(HorizontalFoV);
+                    },
+                  ),
+                )
+              ],
+            ),
+          )
         ],
       ),
       bottomNavigationBar:
