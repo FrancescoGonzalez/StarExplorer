@@ -161,3 +161,11 @@ double getPointYUnclamped(double degreesRotatingObject, double degreesDSO, doubl
 double calculateAngleFromSlope(double x1, double y1, double x2, double y2) {
   return atan2(y2 - y1, x2 - x1);
 }
+
+double magnitudeToSize(double m) {
+  double absBrightestStarMag = 1.46; // sirius
+  double shiftedMag = m + absBrightestStarMag;
+  // if shiftedMag return maxSize, and higher that is, then lower the result. I created this function by myself using https://www.geogebra.org/calculator
+  return (log(0.25 * shiftedMag + 0.0625) / log(0.5)) + 3;
+
+}

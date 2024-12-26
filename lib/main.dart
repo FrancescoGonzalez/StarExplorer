@@ -215,7 +215,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                                 top: getPointYUnclamped(alt, star.alt, 530, VerticalFoV),
                                 child: Icon(
                                   Icons.circle,
-                                  size: 5,
+                                  size: magnitudeToSize(star.magnitude as double),
                                   color: Colors.white,
                                 ),
                               ))
