@@ -71,7 +71,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
     accelerometerEventStream().listen((AccelerometerEvent event) {
       int multiplier =
-          60; // value for the distance for the arrow to "disappear"
+      60; // value for the distance for the arrow to "disappear"
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
       arrowAngle = calculateAngleFromSlope(193, 265, pointX, pointY);
@@ -109,7 +109,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   }
 
   double getVFov(double HFov) {
-    double aspectRatio = MediaQuery.of(context).size.height / MediaQuery.of(context).size.width;
+    double aspectRatio =
+        MediaQuery.of(context).size.height / MediaQuery.of(context).size.width;
     return HFov / aspectRatio;
   }
 
@@ -156,7 +157,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   Widget build(BuildContext context) {
     VerticalFoV = getVFov(HorizontalFoV);
     List<double> altAz =
-        convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
+    convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
 
     setState(() {
       altDSO = altAz[0];
@@ -169,112 +170,102 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
     return Scaffold(
       appBar: CustomAppBar(),
-      body: Column(
-        children: [
-          CustomNav(
-              objectName,
-              degreesToString(altDSO),
-              degreesToString(azDSO),
-              textController,
-              ElevatedButton(
-                onPressed: () {
-                  updateSpaceObjectCoordinates(textController.text);
-                },
-                child: Text("Send"),
-              )),
-          Expanded(
-            child: Container(
-              color: Colors.black,
-              child: Stack(
-                children: [
-                  Center(
-                    child: Transform.rotate(
-                      angle: arrowAngle + 3.141592 / 2,
-                      child: Image.asset(
-                        'assets/red_arrow.png',
-                        width: 50,
-                        height: 50,
-                        color: Color.fromRGBO(255, 255, 0, arrowOpacity),
+      body: GestureDetector(
+        onScaleUpdate: (ScaleUpdateDetails details) {
+          setState(() {
+            if (details.scale < 1 && HorizontalFoV <= 49) {
+              HorizontalFoV += 0.5;
+            } else if (details.scale > 1 && HorizontalFoV >= 11) {
+              HorizontalFoV -= 0.5;
+            }
+            //HorizontalFoV = (HorizontalFoV + (1 - details.scale) * 0.5).clamp(10, 50);
+            VerticalFoV = getVFov(HorizontalFoV);
+          });
+        },
+        child: Column(
+          children: [
+            CustomNav(
+                objectName,
+                degreesToString(altDSO),
+                degreesToString(azDSO),
+                textController,
+                ElevatedButton(
+                  onPressed: () {
+                    updateSpaceObjectCoordinates(textController.text);
+                  },
+                  child: Text("Send"),
+                )),
+            Expanded(
+              child: Container(
+                color: Colors.black,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Transform.rotate(
+                        angle: arrowAngle + 3.141592 / 2,
+                        child: Image.asset(
+                          'assets/red_arrow.png',
+                          width: 50,
+                          height: 50,
+                          color: Color.fromRGBO(255, 255, 0, arrowOpacity),
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    left: pointX,
-                    top: pointY,
-                    child: Image.asset(
-                      'assets/icon/target.png',
-                      scale: 15,
-                      color: Colors.red,
+                    Positioned(
+                      left: pointX,
+                      top: pointY,
+                      child: Image.asset(
+                        'assets/icon/target.png',
+                        scale: 15,
+                        color: Colors.red,
+                      ),
                     ),
-                  ),
-                  Stack(
-                      children: majorStars
-                          .where((star) => star.name != objectName)
-                          .map((star) => Positioned(
-                                left: getPointXUnclamped(az, star.az, 365, HorizontalFoV),
-                                top: getPointYUnclamped(alt, star.alt, 530, VerticalFoV),
-                                child: Icon(
-                                  Icons.circle,
-                                  size: magnitudeToSize(star.magnitude as double),
+                    Stack(
+                        children: majorStars
+                            .where((star) => star.name != objectName)
+                            .map((star) => Positioned(
+                          left: getPointXUnclamped(
+                              az, star.az, 365, HorizontalFoV),
+                          top: getPointYUnclamped(
+                              alt, star.alt, 530, VerticalFoV),
+                          child: Icon(
+                            Icons.circle,
+                            size: magnitudeToSize(
+                                star.magnitude as double),
+                            color: Colors.white,
+                          ),
+                        ))
+                            .toList()),
+                    Stack(
+                        children: majorDSO
+                            .where((dso) => dso.name != objectName)
+                            .map((dso) => Positioned(
+                            left: getPointXUnclamped(
+                                az, dso.az, 365, HorizontalFoV),
+                            top: getPointYUnclamped(
+                                alt, dso.alt, 530, VerticalFoV),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  'assets/icon/galaxy.png',
+                                  scale: 5,
                                   color: Colors.white,
                                 ),
-                              ))
-                          .toList()),
-                  Stack(
-                      children: majorDSO
-                          .where((dso) => dso.name != objectName)
-                          .map((dso) => Positioned(
-                              left: getPointXUnclamped(az, dso.az, 365, HorizontalFoV),
-                              top: getPointYUnclamped(alt, dso.alt, 530, VerticalFoV),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/icon/galaxy.png',
-                                    scale: 5,
-                                    color: Colors.white,
-                                  ),
-                                  Text(dso.getName,
-                                      style: TextStyle(
-                                          fontSize: 8, color: Colors.white))
-                                ],
-                              )))
-                          .toList()),
-                ],
+                                Text(dso.getName,
+                                    style: TextStyle(
+                                        fontSize: 8, color: Colors.white))
+                              ],
+                            )))
+                            .toList()),
+                  ],
+                ),
               ),
             ),
-          ),
-          Container(
-            color: nightSkyColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Fov: $HorizontalFoV",
-                  style: TextStyle(
-                      color: Colors.white
-                  ),
-                ),
-                Container(
-                  width: 300,
-                  child: Slider(
-                    value: HorizontalFoV,
-                    max: 50,
-                    min: 10,
-                    divisions: 40,
-                    label: HorizontalFoV.round().toString(),
-                    onChanged: (double value) {
-                      HorizontalFoV = value;
-                      VerticalFoV = getVFov(HorizontalFoV);
-                    },
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar:
-          CustomFooter(getCompassDirection(az), degreesToString(az)),
+      CustomFooter(getCompassDirection(az), degreesToString(az)),
     );
   }
 }
