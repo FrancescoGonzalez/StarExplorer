@@ -39,22 +39,22 @@ class StarExplorerApp extends StatefulWidget {
 }
 
 class StarExplorerAppState extends State<StarExplorerApp> {
-  double alt = 0.0;
-  double az = 0.0;
-  double lat = 0.0;
-  double lon = 0.0;
-  double ra = 0.0;
-  double dec = 0.0;
+  double pointingAlt = 0.0;
+  double pointingAz = 0.0;
+  double deviceLatitude = 0.0;
+  double deviceLongitude = 0.0;
+  double spaceObjectRa = 0.0;
+  double spaceObjectDec = 0.0;
   double arrowAngle = 0.0;
-  double azDSO = 0.0;
-  double altDSO = 0.0;
+  double spaceObjectAz = 0.0;
+  double spaceObjectAlt = 0.0;
   double arrowOpacity = 1;
   double pointX = 0.0;
   double pointY = 0.0;
   List<SpaceObjectDataAltAz> majorStars = [];
   List<SpaceObjectDataAltAz> majorDSO = [];
 
-  bool centered = true;
+  bool isScreenCentered = true;
 
   double HorizontalFoV = 20.0; //default
   double VerticalFoV = 3.9; // default: Iphone 15
@@ -63,17 +63,17 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
   List<double> _accelerometerValues = [0.0, 0.0, 0.0];
   TextEditingController textController = TextEditingController();
-  String objectName = "LOADING";
+  String currentObjectName = "";
 
   @override
   void initState() {
     super.initState();
     updatePosition();
-    updateSpaceObjectCoordinates('m31'); //base value
+    updateSpaceObjectCoordinates('M31'); //base value
 
     accelerometerEventStream().listen((AccelerometerEvent event) {
       int multiplier =
-          60; // value for the distance for the arrow to "disappear"
+      60; // value for the distance for the arrow to "disappear"
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
       arrowAngle = calculateAngleFromSlope(193, 265, pointX, pointY);
@@ -90,14 +90,14 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     // Listen to compass events for azimuth calculation
     FlutterCompass.events?.listen((CompassEvent event) {
       setState(() {
-        if (centered) {
+        if (isScreenCentered) {
           double newAz = event.heading ?? 0;
-          double diff = (newAz - az).abs();
+          double delta = (newAz - pointingAz).abs();
 
-          if (diff > 160 && diff < 200 && !(az > -20 && az < 20)) {
-            az = (newAz + 180) % 360;
+          if (delta > 160 && delta < 200 && !(pointingAz > -20 && pointingAz < 20)) {
+            pointingAz = (newAz + 180) % 360;
           } else {
-            az = newAz;
+            pointingAz = newAz;
           }
         }
       });
@@ -119,15 +119,15 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   }
 
   void updateMajorStars() async {
-    majorStars = await fetchMajorStarCoordinates(lat, lon);
-    majorDSO = await fetchMajorDSOCoordinates(lat, lon);
+    majorStars = await fetchMajorStarCoordinates(deviceLatitude, deviceLongitude);
+    majorDSO = await fetchMajorDSOCoordinates(deviceLatitude, deviceLongitude);
   }
 
   void _updateOrientation() {
     setState(() {
-      alt = centered ? calculateOrientation(_accelerometerValues) : alt;
-      pointX = getPointX(az, azDSO, 365, HorizontalFoV);
-      pointY = getPointY(alt, altDSO, 490, VerticalFoV);
+      pointingAlt = isScreenCentered ? calculateOrientation(_accelerometerValues) : pointingAlt;
+      pointX = getPointX(pointingAz, spaceObjectAz, 365, HorizontalFoV);
+      pointY = getPointY(pointingAlt, spaceObjectAlt, 490, VerticalFoV);
     });
   }
 
@@ -135,8 +135,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     try {
       Position p = await getCurrentPosition();
       setState(() {
-        lat = p.latitude;
-        lon = p.longitude;
+        deviceLatitude = p.latitude;
+        deviceLongitude = p.longitude;
       });
     } catch (e) {
       throw Exception(e);
@@ -147,9 +147,9 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     try {
       SpaceObjectData dso = await fetchSpaceObjectCoordinates(name);
       setState(() {
-        ra = dso.getRa;
-        dec = dso.getDec;
-        objectName = dso.getName;
+        spaceObjectRa = dso.getRa;
+        spaceObjectDec = dso.getDec;
+        currentObjectName = dso.getName;
       });
       updateMajorStars();
     } catch (e) {
@@ -161,17 +161,16 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   Widget build(BuildContext context) {
     VerticalFoV = getVFov(HorizontalFoV);
     List<double> altAz =
-        convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
+    convertRaDecToAltAz(spaceObjectRa, spaceObjectDec, deviceLatitude, deviceLongitude, DateTime.now().toUtc());
 
     setState(() {
-      altDSO = altAz[0];
-      azDSO = altAz[1];
+      spaceObjectAlt = altAz[0];
+      spaceObjectAz = altAz[1];
     });
 
     if (majorDSO.isEmpty) {
       return LoadingPage();
     }
-
     return Scaffold(
       appBar: CustomAppBar(),
       body: GestureDetector(
@@ -187,14 +186,14 @@ class StarExplorerAppState extends State<StarExplorerApp> {
             } else {
               double sensibility = 0.2;
               double dx = details.focalPointDelta.dx * sensibility;
-              double dy = details.focalPointDelta.dy * (sensibility / 2);
-              centered = false;
-              double newAz = az - dx; // dx is reversed i think
-              az = (newAz + 360) % 360;
+              double dy = details.focalPointDelta.dy * (sensibility / 2); // dy is more sensib
+              isScreenCentered = false;
+              double newAz = pointingAz - dx; // dx is reversed i think
+              pointingAz = (newAz + 360) % 360;
 
-              double newAlt = alt + dy;
+              double newAlt = pointingAlt + dy;
               if (newAlt < 90 || newAlt > -90) {
-                alt = newAlt;
+                pointingAlt = newAlt;
               }
             }
           });
@@ -202,9 +201,9 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         child: Column(
           children: [
             CustomNav(
-                objectName,
-                degreesToString(altDSO),
-                degreesToString(azDSO),
+                currentObjectName,
+                degreesToString(spaceObjectAlt),
+                degreesToString(spaceObjectAz),
                 textController,
                 ElevatedButton(
                   onPressed: () {
@@ -239,49 +238,49 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                     ),
                     Stack(
                         children: majorStars
-                            .where((star) => star.name != objectName)
+                            .where((star) => star.name != currentObjectName)
                             .map((star) => Positioned(
-                                  left: getPointXUnclamped(
-                                      az, star.az, 365, HorizontalFoV),
-                                  top: getPointYUnclamped(
-                                      alt, star.alt, 530, VerticalFoV),
-                                  child: Icon(
-                                    Icons.circle,
-                                    size: magnitudeToSize(
-                                        star.magnitude as double),
-                                    color: Colors.white,
-                                  ),
-                                ))
+                          left: getPointXUnclamped(
+                              pointingAz, star.az, 365, HorizontalFoV),
+                          top: getPointYUnclamped(
+                              pointingAlt, star.alt, 530, VerticalFoV),
+                          child: Icon(
+                            Icons.circle,
+                            size: magnitudeToSize(
+                                star.magnitude as double),
+                            color: Colors.white,
+                          ),
+                        ))
                             .toList()),
                     Stack(
                         children: majorDSO
-                            .where((dso) => dso.name != objectName)
+                            .where((dso) => dso.name != currentObjectName)
                             .map((dso) => Positioned(
-                                left: getPointXUnclamped(
-                                    az, dso.az, 365, HorizontalFoV),
-                                top: getPointYUnclamped(
-                                    alt, dso.alt, 530, VerticalFoV),
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/icon/galaxy.png',
-                                      scale: 5,
-                                      color: Colors.white,
-                                    ),
-                                    Text(dso.getName,
-                                        style: TextStyle(
-                                            fontSize: 8, color: Colors.white))
-                                  ],
-                                )))
+                            left: getPointXUnclamped(
+                                pointingAz, dso.az, 365, HorizontalFoV),
+                            top: getPointYUnclamped(
+                                pointingAlt, dso.alt, 530, VerticalFoV),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  'assets/icon/galaxy.png',
+                                  scale: 5,
+                                  color: Colors.white,
+                                ),
+                                Text(dso.getName,
+                                    style: TextStyle(
+                                        fontSize: 8, color: Colors.white))
+                              ],
+                            )))
                             .toList()),
-                    if (!centered)
+                    if (!isScreenCentered)
                       Positioned(
                         left: 139,
                         top: 469,
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
-                              centered = true; // Hide the button when pressed
+                              isScreenCentered = true; // Hide the button when pressed
                             });
                           },
                           child: Text('Center view'),
@@ -295,7 +294,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         ),
       ),
       bottomNavigationBar:
-          CustomFooter(getCompassDirection(az), degreesToString(az)),
+      CustomFooter(getCompassDirection(pointingAz), degreesToString(pointingAz)),
     );
   }
 }
