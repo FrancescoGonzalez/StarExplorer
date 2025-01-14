@@ -113,14 +113,15 @@ double getSlope(double x1, double y1, double x2, double y2) {
   return dy / dx;
 }
 
-double getPointX(double degreesRotatingObject, double degreesDSO, double maxWidthScreen, double HFoV) {
+double getPointX(double degreesRotatingObject, double degreesDSO,
+    double maxWidthScreen, double HFoV) {
   double degrees = degreesDSO - degreesRotatingObject;
 
   if (degrees > 180) {
     degrees -= 360;
-} else if (degrees < -180) {
+  } else if (degrees < -180) {
     degrees += 360;
-}
+  }
 
   if (degrees >= HFoV) {
     return maxWidthScreen;
@@ -133,12 +134,15 @@ double getPointX(double degreesRotatingObject, double degreesDSO, double maxWidt
   }
 }
 
-double getPointXUnclamped(double degreesRotatingObject, double degreesDSO, double maxWidthScreen, double HFov) {
-  double res = getPointX(degreesRotatingObject, degreesDSO, maxWidthScreen, HFov);
+double getPointXUnclamped(double degreesRotatingObject, double degreesDSO,
+    double maxWidthScreen, double HFov) {
+  double res =
+      getPointX(degreesRotatingObject, degreesDSO, maxWidthScreen, HFov);
   return res == 0 || res == maxWidthScreen ? maxWidthScreen + 100 : res;
 }
 
-double getPointY(double degreesRotatingObject, double degreesDSO, double maxHeightScreen, double VFov) {
+double getPointY(double degreesRotatingObject, double degreesDSO,
+    double maxHeightScreen, double VFov) {
   double degrees = degreesDSO - degreesRotatingObject;
 
   if (degrees >= VFov) {
@@ -148,15 +152,16 @@ double getPointY(double degreesRotatingObject, double degreesDSO, double maxHeig
   } else if (degrees == 0) {
     return maxHeightScreen / 2;
   } else {
-    return (1 -((degrees + VFov) / (2 * VFov))) * maxHeightScreen;
+    return (1 - ((degrees + VFov) / (2 * VFov))) * maxHeightScreen;
   }
 }
 
-double getPointYUnclamped(double degreesRotatingObject, double degreesDSO, double maxHeightScreen, double VFov) {
-  double res = getPointY(degreesRotatingObject, degreesDSO, maxHeightScreen, VFov);
+double getPointYUnclamped(double degreesRotatingObject, double degreesDSO,
+    double maxHeightScreen, double VFov) {
+  double res =
+      getPointY(degreesRotatingObject, degreesDSO, maxHeightScreen, VFov);
   return res == 0 || res == maxHeightScreen ? maxHeightScreen + 100 : res;
 }
-
 
 double calculateAngleFromSlope(double x1, double y1, double x2, double y2) {
   return atan2(y2 - y1, x2 - x1);
@@ -167,5 +172,4 @@ double magnitudeToSize(double m) {
   double shiftedMag = m + absBrightestStarMag;
   // if shiftedMag return maxSize, and higher that is, then lower the result. I created this function by myself using https://www.geogebra.org/calculator
   return (log(0.25 * shiftedMag + 0.0625) / log(0.5)) + 3;
-
 }

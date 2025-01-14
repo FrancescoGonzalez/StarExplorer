@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'custom_app_bar.dart';
 
 class LoadingPage extends StatelessWidget {
-
   const LoadingPage() : super();
 
   @override
@@ -26,12 +25,12 @@ class LoadingPage extends StatelessWidget {
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
-
                   ),
-                  CircularProgressIndicator(color: Colors.white,),
+                  CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
                 ],
               ),
-
               SizedBox(height: 20),
               Text(
                 'This may take a while',

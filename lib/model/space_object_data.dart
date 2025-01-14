@@ -3,16 +3,13 @@ class SpaceObjectData {
   final double dec;
   final String name;
 
-  SpaceObjectData
-({
+  SpaceObjectData({
     required this.ra,
     required this.dec,
     required this.name,
-
   });
 
   double get getRa => ra;
   double get getDec => dec;
   String get getName => name;
-
 }

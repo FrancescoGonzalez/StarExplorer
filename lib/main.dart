@@ -73,7 +73,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
     accelerometerEventStream().listen((AccelerometerEvent event) {
       int multiplier =
-      60; // value for the distance for the arrow to "disappear"
+          60; // value for the distance for the arrow to "disappear"
       _accelerometerValues = [event.x, event.y, event.z];
       _updateOrientation();
       arrowAngle = calculateAngleFromSlope(193, 265, pointX, pointY);
@@ -161,7 +161,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   Widget build(BuildContext context) {
     VerticalFoV = getVFov(HorizontalFoV);
     List<double> altAz =
-    convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
+        convertRaDecToAltAz(ra, dec, lat, lon, DateTime.now().toUtc());
 
     setState(() {
       altDSO = altAz[0];
@@ -177,7 +177,6 @@ class StarExplorerAppState extends State<StarExplorerApp> {
       body: GestureDetector(
         onScaleUpdate: (ScaleUpdateDetails details) {
           setState(() {
-
             if (details.scale != 1) {
               if (details.scale < 1 && HorizontalFoV <= 49) {
                 HorizontalFoV += 0.5;
@@ -197,7 +196,6 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               if (newAlt < 90 || newAlt > -90) {
                 alt = newAlt;
               }
-
             }
           });
         },
@@ -243,38 +241,38 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                         children: majorStars
                             .where((star) => star.name != objectName)
                             .map((star) => Positioned(
-                          left: getPointXUnclamped(
-                              az, star.az, 365, HorizontalFoV),
-                          top: getPointYUnclamped(
-                              alt, star.alt, 530, VerticalFoV),
-                          child: Icon(
-                            Icons.circle,
-                            size: magnitudeToSize(
-                                star.magnitude as double),
-                            color: Colors.white,
-                          ),
-                        ))
+                                  left: getPointXUnclamped(
+                                      az, star.az, 365, HorizontalFoV),
+                                  top: getPointYUnclamped(
+                                      alt, star.alt, 530, VerticalFoV),
+                                  child: Icon(
+                                    Icons.circle,
+                                    size: magnitudeToSize(
+                                        star.magnitude as double),
+                                    color: Colors.white,
+                                  ),
+                                ))
                             .toList()),
                     Stack(
                         children: majorDSO
                             .where((dso) => dso.name != objectName)
                             .map((dso) => Positioned(
-                            left: getPointXUnclamped(
-                                az, dso.az, 365, HorizontalFoV),
-                            top: getPointYUnclamped(
-                                alt, dso.alt, 530, VerticalFoV),
-                            child: Row(
-                              children: [
-                                Image.asset(
-                                  'assets/icon/galaxy.png',
-                                  scale: 5,
-                                  color: Colors.white,
-                                ),
-                                Text(dso.getName,
-                                    style: TextStyle(
-                                        fontSize: 8, color: Colors.white))
-                              ],
-                            )))
+                                left: getPointXUnclamped(
+                                    az, dso.az, 365, HorizontalFoV),
+                                top: getPointYUnclamped(
+                                    alt, dso.alt, 530, VerticalFoV),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      'assets/icon/galaxy.png',
+                                      scale: 5,
+                                      color: Colors.white,
+                                    ),
+                                    Text(dso.getName,
+                                        style: TextStyle(
+                                            fontSize: 8, color: Colors.white))
+                                  ],
+                                )))
                             .toList()),
                     if (!centered)
                       Positioned(
@@ -297,7 +295,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         ),
       ),
       bottomNavigationBar:
-      CustomFooter(getCompassDirection(az), degreesToString(az)),
+          CustomFooter(getCompassDirection(az), degreesToString(az)),
     );
   }
 }
