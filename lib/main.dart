@@ -54,6 +54,8 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   List<SpaceObjectDataAltAz> majorStars = [];
   List<SpaceObjectDataAltAz> majorDSO = [];
 
+  bool centered = true;
+
   double HorizontalFoV = 20.0; //default
   double VerticalFoV = 3.9; // default: Iphone 15
 
@@ -88,13 +90,15 @@ class StarExplorerAppState extends State<StarExplorerApp> {
     // Listen to compass events for azimuth calculation
     FlutterCompass.events?.listen((CompassEvent event) {
       setState(() {
-        double newAz = event.heading ?? 0;
-        double diff = (newAz - az).abs();
+        if (centered) {
+          double newAz = event.heading ?? 0;
+          double diff = (newAz - az).abs();
 
-        if (diff > 160 && diff < 200 && !(az > -20 && az < 20)) {
-          az = (newAz + 180) % 360;
-        } else {
-          az = newAz;
+          if (diff > 160 && diff < 200 && !(az > -20 && az < 20)) {
+            az = (newAz + 180) % 360;
+          } else {
+            az = newAz;
+          }
         }
       });
     });
@@ -121,7 +125,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
   void _updateOrientation() {
     setState(() {
-      alt = calculateOrientation(_accelerometerValues);
+      alt = centered ? calculateOrientation(_accelerometerValues) : alt;
       pointX = getPointX(az, azDSO, 365, HorizontalFoV);
       pointY = getPointY(alt, altDSO, 490, VerticalFoV);
     });
@@ -173,13 +177,28 @@ class StarExplorerAppState extends State<StarExplorerApp> {
       body: GestureDetector(
         onScaleUpdate: (ScaleUpdateDetails details) {
           setState(() {
-            if (details.scale < 1 && HorizontalFoV <= 49) {
-              HorizontalFoV += 0.5;
-            } else if (details.scale > 1 && HorizontalFoV >= 11) {
-              HorizontalFoV -= 0.5;
+
+            if (details.scale != 1) {
+              if (details.scale < 1 && HorizontalFoV <= 49) {
+                HorizontalFoV += 0.5;
+              } else if (details.scale > 1 && HorizontalFoV >= 11) {
+                HorizontalFoV -= 0.5;
+              }
+              VerticalFoV = getVFov(HorizontalFoV);
+            } else {
+              double sensibility = 0.2;
+              double dx = details.focalPointDelta.dx * sensibility;
+              double dy = details.focalPointDelta.dy * (sensibility / 2);
+              centered = false;
+              double newAz = az - dx; // dx is reversed i think
+              az = (newAz + 360) % 360;
+
+              double newAlt = alt + dy;
+              if (newAlt < 90 || newAlt > -90) {
+                alt = newAlt;
+              }
+
             }
-            //HorizontalFoV = (HorizontalFoV + (1 - details.scale) * 0.5).clamp(10, 50);
-            VerticalFoV = getVFov(HorizontalFoV);
           });
         },
         child: Column(
@@ -257,6 +276,19 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                               ],
                             )))
                             .toList()),
+                    if (!centered)
+                      Positioned(
+                        left: 139,
+                        top: 469,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              centered = true; // Hide the button when pressed
+                            });
+                          },
+                          child: Text('Center view'),
+                        ),
+                      ),
                   ],
                 ),
               ),
