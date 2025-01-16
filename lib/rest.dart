@@ -62,66 +62,31 @@ Future<SpaceObjectData> fetchSpaceObjectCoordinates(String name) async {
   }
 }
 
-Future<List<SpaceObjectDataAltAz>> fetchMajorStarCoordinates(
-    double lat, double lon) async {
-  const batchSize = 10;
-  final results = <SpaceObjectDataAltAz>[];
-
-  for (var i = 0; i < starNames.length; i += batchSize) {
-    // proposto da Claude AI e poi adattato.
-    // prende 10 elementi alla volta.
-    // per ogniuno ricava altaz
-    // lo ri fa con i prox 10 elementi
-
-    final end =
-        (i + batchSize < starNames.length) ? i + batchSize : starNames.length;
-    final batch = starNames.sublist(i, end);
-
-    final batchFutures = batch.map((starData) async {
-      final star = await fetchSpaceObjectCoordinates(starData[0] as String);
-      final altAz = convertRaDecToAltAz(
-          star.ra, star.dec, lat, lon, DateTime.now().toUtc());
-      return SpaceObjectDataAltAz(
-          alt: altAz[0],
-          az: altAz[1],
-          name: star.getName,
-          magnitude: starData[1] as double);
-    }).toList();
-
-    results.addAll(await Future.wait(batchFutures));
-
-    if (end < starNames.length) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+List<SpaceObjectDataAltAz> fetchMajorStarCoordinates(double lat, double lon) {
+  List<SpaceObjectDataAltAz> res = [];
+  for (Map<String, Object> star in starNames) {
+    final altAz = convertRaDecToAltAz(star["ra"] as double, star["dec"] as double,
+        lat, lon, DateTime.now().toUtc());
+    res.add(new SpaceObjectDataAltAz(
+        alt: altAz[0],
+        az: altAz[1],
+        name: star["name"] as String,
+        magnitude: star["mag"] as double));
   }
-
-  return results;
+  return res;
 }
 
-Future<List<SpaceObjectDataAltAz>> fetchMajorDSOCoordinates(
-    double lat, double lon) async {
-  const batchSize = 5;
-  final results = <SpaceObjectDataAltAz>[];
-  for (var i = 0; i < dsoNames.length; i += batchSize) {
-    // Funzionamento: simile al metodo sopra
-    final end =
-        (i + batchSize < dsoNames.length) ? i + batchSize : dsoNames.length;
-    final batch = dsoNames.sublist(i, end);
-
-    final batchFutures = batch.map((name) async {
-      final dso = await fetchSpaceObjectCoordinates(name);
-      final time = DateTime.now().toUtc();
-      final altAz = convertRaDecToAltAz(dso.ra, dso.dec, lat, lon, time);
-      return SpaceObjectDataAltAz(
-          alt: altAz[0], az: altAz[1], name: dso.getName);
-    }).toList();
-
-    results.addAll(await Future.wait(batchFutures));
-
-    if (end < dsoNames.length) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+List<SpaceObjectDataAltAz> fetchMajorDSOCoordinates(double lat, double lon) {
+  List<SpaceObjectDataAltAz> res = [];
+  for (Map<String, Object> dso in dsoData) {
+    final altAz = convertRaDecToAltAz(dso["ra"] as double, dso["dec"] as double,
+        lat, lon, DateTime.now().toUtc());
+    res.add(new SpaceObjectDataAltAz(
+        alt: altAz[0],
+        az: altAz[1],
+        name: dso["name"] as String,
+        magnitude: dso["mag"] as double,
+        type: dso["type"] as String));
   }
-
-  return results;
+  return res;
 }

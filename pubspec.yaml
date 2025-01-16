@@ -28,6 +28,7 @@ flutter:
     - assets/red_arrow.png
     - assets/icon/galaxy.png
     - assets/icon/target.png
+    - assets/icon/galaxy-cluster.png
 
 flutter_launcher_icons:
   android: true

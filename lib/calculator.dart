@@ -173,3 +173,9 @@ double magnitudeToSize(double m) {
   // if shiftedMag return maxSize, and higher that is, then lower the result. I created this function by myself using https://www.geogebra.org/calculator
   return (log(0.25 * shiftedMag + 0.0625) / log(0.5)) + 3;
 }
+
+double magnitudeToSizeDSO(double m) {
+  double baseSize = 15.0; // Base size for the brightest DSO
+  double scaleFactor = 2.0; // Scale factor to adjust the size increase rate
+  return baseSize + (m * scaleFactor);
+}
