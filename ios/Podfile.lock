@@ -25,9 +25,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_compass: cbbd285cea1584c7ac9c4e0c3e1f17cbea55e855
-  geolocator_apple: 9bcea1918ff7f0062d98345d238ae12718acfbc1
-  sensors_plus: 7229095999f30740798f0eeef5cd120357a8f4f2
+  flutter_compass: b236ab69b61545cce89fd58527f401a7587d5cc1
+  geolocator_apple: 1560c3c875af2a412242c7a923e15d0d401966ff
+  sensors_plus: 6a11ed0c2e1d0bd0b20b4029d3bad27d96e0c65b
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 

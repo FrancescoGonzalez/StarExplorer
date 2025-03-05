@@ -191,7 +191,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               double sensibility = 0.2;
               double dx = details.focalPointDelta.dx * sensibility;
               double dy = details.focalPointDelta.dy *
-                  (sensibility / 2); // dy is more sensib
+                  (sensibility / 2); // dy is more sensible
               isScreenCentered = false;
               double newAz = pointingAz - dx; // dx is reversed i think
               pointingAz = (newAz + 360) % 360;
