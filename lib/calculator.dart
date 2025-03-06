@@ -167,11 +167,15 @@ double calculateAngleFromSlope(double x1, double y1, double x2, double y2) {
   return atan2(y2 - y1, x2 - x1);
 }
 
-double magnitudeToSize(double m) {
+double magnitudeToSize(double starMagnitude) {
   double absBrightestStarMag = 1.46; // sirius
-  double shiftedMag = m + absBrightestStarMag;
-  // if shiftedMag return maxSize, and higher that is, then lower the result. I created this function by myself using https://www.geogebra.org/calculator
-  return (log(0.25 * shiftedMag + 0.0625) / log(0.5)) + 3;
+  double shiftedMag = starMagnitude + absBrightestStarMag;
+
+  if (shiftedMag >= 3.46) {
+    return 40;
+  }
+
+  return (10 / 3 * shiftedMag) + 30;
 }
 
 double magnitudeToSizeDSO(double m) {

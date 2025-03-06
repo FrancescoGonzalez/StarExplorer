@@ -193,7 +193,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
               double dy = details.focalPointDelta.dy *
                   (sensibility / 2); // dy is more sensible
               isScreenCentered = false;
-              double newAz = pointingAz - dx; // dx is reversed i think
+              double newAz = pointingAz - dx; // dx is reversed I think
               pointingAz = (newAz + 360) % 360;
 
               double newAlt = pointingAlt + dy;
@@ -218,7 +218,13 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                 )),
             Expanded(
               child: Container(
-                color: Colors.black,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.black, Color(0xFF0B3D91), Color(0xFF009AEE)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
                 child: Stack(
                   children: [
                     Center(
@@ -249,9 +255,9 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                                       pointingAz, star.az, 365, HorizontalFoV),
                                   top: getPointYUnclamped(
                                       pointingAlt, star.alt, 530, VerticalFoV),
-                                  child: Icon(
-                                    Icons.circle,
-                                    size: magnitudeToSize(
+                                  child: Image.asset(
+                                    'assets/icon/star.png',
+                                    scale: magnitudeToSize(
                                         star.magnitude as double),
                                     color: Colors.white,
                                   ),
