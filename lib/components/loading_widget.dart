@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:star_explorer/constants.dart';
 
 import 'custom_app_bar.dart';
 
@@ -10,7 +11,7 @@ class LoadingPage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(),
       body: Container(
-        color: Color.fromARGB(255, 5, 14, 57),
+        color: nightSkyColor,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

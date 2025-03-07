@@ -9,11 +9,10 @@ import 'package:star_explorer/model/space_object_data_alt_az.dart';
 import 'calculator.dart';
 import 'location.dart';
 import 'rest.dart';
+import 'constants.dart';
 import '/model/space_object_data.dart';
 
 import 'components/custom_app_bar.dart';
-import 'components/custom_footer.dart';
-import 'components/custom_nav.dart';
 import 'components/loading_widget.dart';
 import 'components/error.dart';
 
@@ -55,15 +54,15 @@ class StarExplorerAppState extends State<StarExplorerApp> {
   List<SpaceObjectDataAltAz> majorDSO = [];
 
   bool isScreenCentered = true;
+  bool search = false;
 
   double HorizontalFoV = 20.0; //default
   double VerticalFoV = 3.9; // default: Iphone 15
 
-  Color nightSkyColor = Color.fromARGB(255, 5, 14, 57);
-
   List<double> _accelerometerValues = [0.0, 0.0, 0.0];
   TextEditingController textController = TextEditingController();
-  String currentObjectName = "M31";
+  String currentObjectName = "Andromeda galaxy";
+  String currentObjectInput = "MESSIER 031";
 
   @override
   void initState() {
@@ -149,11 +148,13 @@ class StarExplorerAppState extends State<StarExplorerApp> {
 
   void updateSpaceObjectCoordinates(String name) async {
     try {
+      textController.text = "";
       SpaceObjectData dso = await fetchSpaceObjectCoordinates(name);
       setState(() {
         spaceObjectRa = dso.getRa;
         spaceObjectDec = dso.getDec;
         currentObjectName = dso.getName;
+        currentObjectInput = name.toUpperCase();
       });
       updateMajorStars();
     } catch (e) {
@@ -205,17 +206,55 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         },
         child: Column(
           children: [
-            CustomNav(
-                currentObjectName,
-                degreesToString(spaceObjectAlt),
-                degreesToString(spaceObjectAz),
-                textController,
-                ElevatedButton(
-                  onPressed: () {
-                    updateSpaceObjectCoordinates(textController.text);
-                  },
-                  child: Text("Send"),
-                )),
+            Container(
+              color: nightSkyColor,
+              child: SizedBox(
+                width: double.infinity,
+                height: 70,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(width: 16),
+                        Text(
+                          "target:",
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        SizedBox(width: 16),
+                        Text(
+                          currentObjectInput,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        SizedBox(width: 8), // adds space between the texts
+                        Text(
+                          currentObjectName,
+                          style: TextStyle(
+                            color: Color(0xff1e6469),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -252,14 +291,22 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                             .where((star) => star.name != currentObjectName)
                             .map((star) => Positioned(
                                   left: getPointXUnclamped(
-                                      pointingAz, star.az, 365, HorizontalFoV),
+                                      pointingAz, star.az, 365, HorizontalFoV
+                                  ),
                                   top: getPointYUnclamped(
-                                      pointingAlt, star.alt, 530, VerticalFoV),
-                                  child: Image.asset(
-                                    'assets/icon/star.png',
-                                    scale: magnitudeToSize(
-                                        star.magnitude as double),
-                                    color: Colors.white,
+                                      pointingAlt, star.alt, 530, VerticalFoV
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      updateSpaceObjectCoordinates(star.name);
+                                    },
+                                    child: Image.asset(
+                                      'assets/icon/star.png',
+                                      scale: magnitudeToSize(
+                                          star.magnitude as double
+                                      ),
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ))
                             .toList()),
@@ -285,13 +332,18 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset(
-                                dso.type == "galaxy-cluster"
-                                    ? 'assets/icon/galaxy-cluster.png'
-                                    : 'assets/icon/galaxy.png',
-                                scale:
-                                    dso.type == "galaxy-cluster" ? 30.0 : 25.0,
-                                color: Colors.white,
+                              GestureDetector(
+                                onTap: () {
+                                  updateSpaceObjectCoordinates(dso.name);
+                                },
+                                child: Image.asset(
+                                  dso.type == "galaxy-cluster"
+                                      ? 'assets/icon/galaxy-cluster.png'
+                                      : 'assets/icon/galaxy.png',
+                                  scale:
+                                  dso.type == "galaxy-cluster" ? 30.0 : 25.0,
+                                  color: Colors.white,
+                                ),
                               ),
                               Text(dso.getName,
                                   style: TextStyle(
@@ -299,20 +351,45 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                             ],
                           ));
                     }).toList()),
-                    if (!isScreenCentered)
-                      Positioned(
-                        left: 139,
-                        top: 469,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              isScreenCentered =
-                                  true; // Hide the button when pressed
-                            });
-                          },
-                          child: Text('Center view'),
+                    if (search)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: ImageIcon(
+                                  AssetImage("assets/icon/search.png"), // Replace with your image path
+                                  color: Colors.black,
+                                ),
+                                onPressed: () {
+                                  updateSpaceObjectCoordinates(textController.text);
+                                },
+                              ),
+                              Expanded(
+                                child: TextField(
+                                  controller: textController,
+                                  style: TextStyle(color: Colors.black),
+                                  decoration: InputDecoration(
+                                    hintText: "Search dso...",
+                                    hintStyle: TextStyle(color: Colors.black.withValues(alpha: 0.6)),
+                                    border: InputBorder.none,
+                                  ),
+                                  onSubmitted: (value) {
+                                    updateSpaceObjectCoordinates(value);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      )
                   ],
                 ),
               ),
@@ -320,8 +397,66 @@ class StarExplorerAppState extends State<StarExplorerApp> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomFooter(
-          getCompassDirection(pointingAz), degreesToString(pointingAz)),
+      bottomNavigationBar: Container(
+        color: nightSkyColor,
+        height: 120,
+        child: Padding(
+          padding: EdgeInsets.all(25.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                         search = !search;
+                      });
+                    },
+                    child: Image.asset(
+                      'assets/icon/search.png',
+                      scale: 20,
+                      color: Colors.black,),
+                  ),
+                  Text(
+                    "Search",
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        isScreenCentered = !isScreenCentered;
+                        if (!isScreenCentered) {
+                          pointingAz = spaceObjectAz;
+                          pointingAlt = spaceObjectAlt;
+                        }
+                      });
+                    },
+                    child: Image.asset(
+                      'assets/icon/focus.png',
+                      scale: 20,
+                      color: Colors.black,),
+                  ),
+                  Text(
+                    "Center ${isScreenCentered ? "view" : "phone"}",
+                    style: TextStyle(
+                        color: Colors.white
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          )
+        ),
+      ),
     );
   }
 }

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:star_explorer/constants.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
       title: const Text('Star Explorer'),
+      toolbarHeight: 30,
       titleTextStyle: TextStyle(
-        color: const Color.fromARGB(225, 22, 106, 151),
-        fontSize: 24,
+        color: Colors.white,
+        fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
-      backgroundColor: Color.fromARGB(255, 5, 14, 57),
+      backgroundColor: nightSkyColor,
     );
   }
 
