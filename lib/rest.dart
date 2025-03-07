@@ -6,12 +6,17 @@ import 'dart:async';
 import 'data/star_data.dart';
 import 'data/DSO_data.dart';
 import 'model/space_object_data_alt_az.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 final _client = HttpClient()
   ..connectionTimeout = const Duration(seconds: 30)
   ..idleTimeout = const Duration(seconds: 60);
 
 Future<SpaceObjectData> fetchSpaceObjectCoordinates(String name) async {
+  if (!(await checkConnection())) {
+    throw Exception('No internet connection, connect and try again');
+  }
+
   final url = 'https://ned.ipac.caltech.edu/srs/ObjectLookup';
   final body = jsonEncode({
     "name": {"v": name}
@@ -60,6 +65,14 @@ Future<SpaceObjectData> fetchSpaceObjectCoordinates(String name) async {
   } catch (e) {
     rethrow;
   }
+}
+
+Future<bool> checkConnection() async{
+  final connectivityResult = await Connectivity().checkConnectivity();
+  if (connectivityResult.contains(ConnectivityResult.none)) {
+    return false;
+  }
+  return true;
 }
 
 List<SpaceObjectDataAltAz> fetchMajorStarCoordinates(double lat, double lon) {
