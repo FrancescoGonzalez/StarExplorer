@@ -239,16 +239,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                           ),
-                        ),
-                        SizedBox(width: 8), // adds space between the texts
-                        Text(
-                          currentObjectName,
-                          style: TextStyle(
-                            color: Color(0xff1e6469),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
+                        )
                       ],
                     ),
                   ],
@@ -345,9 +336,6 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                                   color: Colors.white,
                                 ),
                               ),
-                              Text(dso.getName,
-                                  style: TextStyle(
-                                      fontSize: 8, color: Colors.white))
                             ],
                           ));
                     }).toList()),
