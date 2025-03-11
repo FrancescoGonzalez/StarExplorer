@@ -16,6 +16,8 @@ import 'components/custom_app_bar.dart';
 import 'components/loading_widget.dart';
 import 'components/error.dart';
 
+import 'package:flutter/services.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -23,6 +25,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: StarExplorerApp(),
