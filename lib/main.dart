@@ -160,12 +160,30 @@ class StarExplorerAppState extends State<StarExplorerApp> {
         spaceObjectRa = dso.getRa;
         spaceObjectDec = dso.getDec;
         currentObjectName = dso.getName;
-        currentObjectInput = name.toUpperCase();
+        currentObjectInput = upgradeName(name);
       });
       updateMajorStars();
     } catch (e) {
       Error('$e').showErrorDialog(context);
     }
+  }
+
+  String upgradeName(String s) {
+    List<String> lst = s.split(" ");
+    for (int i = 0; i < lst.length; i++) {
+      if (greekLetters.containsKey(lst[i])) {
+        lst[i] = greekLetters[lst[i]]!;
+      } else if (superscriptNumbers.containsKey(lst[i])) {
+        lst[i] = superscriptNumbers[lst[i]]!;
+      } else {
+        for (int j = 0; j < lst[i].length; j++) {
+          if (superscriptNumbers.containsKey(lst[i][j])) {
+            lst[i] = lst[i].replaceAll(lst[i][j], superscriptNumbers[lst[i][j]]!);
+          }
+        }
+      }
+    }
+    return lst.join(" ");
   }
 
   @override
@@ -440,7 +458,7 @@ class StarExplorerAppState extends State<StarExplorerApp> {
                       color: Colors.black,),
                   ),
                   Text(
-                    "Center ${isScreenCentered ? "view" : "phone"}",
+                    "Center ${isScreenCentered ? "object" : "phone"}",
                     style: TextStyle(
                         color: Colors.white
                     ),
